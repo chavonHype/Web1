@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eksplorasi Angkasa</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            touch-action: pan-y;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+            color: white;
+            perspective: 1000px;
+        }
+        
+        .space-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            overscroll-behavior: contain;
+        }
+        
+        section {
+            position: relative;
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow: hidden;
+        }
+        
+        .intro {
+            flex-direction: column;
+            text-align: center;
+            z-index: 10;
+        }
+        
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+        
+        p {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            max-width: 800px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease 0.3s;
+        }
+        
+        .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+        
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .planet.visible {
+            opacity: 1;
+            transform: scale(1) rotate(360deg);
+        }
+        
+        .planet-info {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1.5rem;
+            border-radius: 15px;
+            max-width: 400px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .planet-info.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .planet-info h3 {
+            color: #4cc9f0;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .planet-info p {
+            opacity: 1;
+            transform: none;
+            font-size: 1rem;
+        }
+        
+        .comet {
+            position: absolute;
+            width: 150px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(100,200,255,0.8));
+            transform-origin: left center;
+            opacity: 0;
+            z-index: -1;
+        }
+        
+        @keyframes twinkle {
+            0% {
+                opacity: 0.2;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes cometFly {
+            0% {
+                transform: translate(0, 0) rotate(45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(1000px, -500px) rotate(45deg);
+                opacity: 0;
+            }
+        }
+        
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+        
+        .scroll-indicator:hover {
+            opacity: 1;
+        }
+        
+        .scroll-text {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            animation: bounce 2s infinite;
+        }
+        
+        .scroll-arrow {
+            width: 20px;
+            height: 20px;
+            border-left: 2px solid white;
+            border-bottom: 2px solid white;
+            transform: rotate(-45deg);
+            animation: scrollAnimation 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @keyframes scrollAnimation {
+            0% {
+                opacity: 0;
+                transform: rotate(-45deg) translate(0, 0);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: rotate(-45deg) translate(-10px, 10px);
+            }
+        }
+        
+        .ending {
+            text-align: center;
+            flex-direction: column;
+        }
+        
+        .ending h1 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+        
+        .ending p {
+            max-width: 600px;
+            font-style: italic;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease 0.3s;
+        }
+        
+        .ending.visible h1,
+        .ending.visible p {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 768px) {
+            .planet {
+                width: 150px !important;
+                height: 150px !important;
+            }
+            
+            .planet-info {
+                max-width: 80%;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="space-container" id="spaceContainer">
+        <section class="intro">
+            <h1 id="title">Eksplorasi Tata Surya</h1>
+            <p id="subtitle">Halo saya Deepseek yang membuat website ini dan dibantu prompt nya oleh chvon</p>
+        </section>
+        
+        <section class="planet-section">
+            <div class="planet" id="planet1" style="width: 200px; height: 200px; background: linear-gradient(135deg, #4cc9f0, #4361ee); top: 20%; left: 15%;"></div>
+            <div class="planet-info" style="top: 25%; left: 30%;">
+                <h3>Bumi</h3>
+                <p>Planet ketiga dari Matahari, satu-satunya tempat yang diketahui memiliki kehidupan. 71% permukaannya ditutupi air. Memiliki satelit alami bernama Bulan.</p>
+            </div>
+        </section>
+        
+        <section class="planet-section">
+            <div class="planet" id="planet2" style="width: 300px; height: 300px; background: linear-gradient(135deg, #f72585, #b5179e); top: 50%; right: 10%;"></div>
+            <div class="planet-info" style="top: 55%; right: 30%;">
+                <h3>Mars</h3>
+                <p>Dijuluki "Planet Merah" karena warna permukaannya yang kemerahan akibat besi oksida. Memiliki gunung tertinggi di tata surya (Olympus Mons) dan lembah terbesar (Valles Marineris).</p>
+            </div>
+        </section>
+        
+        <section class="planet-section">
+            <div class="planet" id="planet3" style="width: 250px; height: 250px; background: linear-gradient(135deg, #f8961e, #f3722c); bottom: 20%; left: 20%;"></div>
+            <div class="planet-info" style="bottom: 25%; left: 40%;">
+                <h3>Jupiter</h3>
+                <p>Planet terbesar di tata surya, berupa raksasa gas dengan Great Red Spot (badai raksasa yang telah berlangsung selama ratusan tahun). Memiliki 79 satelit alami yang diketahui.</p>
+            </div>
+        </section>
+        
+        <section class="ending" id="endingSection">
+            <h1>Penjelajahan Selesai!</h1>
+            <p>Sekian terima kasih. Saya bisa aja buat website gila-gilaan, tapi you know lah... si pembuat prompt nya malas (Gipfel)</p>
+        </section>
+    </div>
+    
+    <div class="stars" id="stars"></div>
+    
+    <div class="scroll-indicator">
+        <div class="scroll-text">Scroll untuk menjelajahi</div>
+        <div class="scroll-arrow"></div>
+    </div>
+    
+    <script>
+        // Mencegah zoom dengan gesture pada mobile
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+        
+        // Create stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.width = `${Math.random() * 3 + 1}px`;
+            star.style.height = star.style.width;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.animationDelay = `${Math.random() * 2}s`;
+            starsContainer.appendChild(star);
+        }
+        
+        // Create random comets
+        function createComet() {
+            const comet = document.createElement('div');
+            comet.classList.add('comet');
+            comet.style.left = `${Math.random() * 100}%`;
+            comet.style.top = `${Math.random() * 100}%`;
+            comet.style.animation = `cometFly ${Math.random() * 5 + 3}s linear forwards`;
+            document.body.appendChild(comet);
+            
+            setTimeout(() => {
+                comet.remove();
+            }, 5000);
+        }
+        
+        // Create comets periodically
+        setInterval(createComet, 3000);
+        
+        // Initial animation
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('title').classList.add('visible');
+                document.getElementById('subtitle').classList.add('visible');
+            }, 500);
+            
+            // Buat komet pertama segera muncul
+            setTimeout(createComet, 1000);
+        };
+        
+        // Scroll animations
+        const spaceContainer = document.getElementById('spaceContainer');
+        const planets = [
+            { element: document.getElementById('planet1'), info: document.querySelectorAll('.planet-info')[0] },
+            { element: document.getElementById('planet2'), info: document.querySelectorAll('.planet-info')[1] },
+            { element: document.getElementById('planet3'), info: document.querySelectorAll('.planet-info')[2] }
+        ];
+        const endingSection = document.getElementById('endingSection');
+        
+        spaceContainer.addEventListener('scroll', () => {
+            const scrollPosition = spaceContainer.scrollTop;
+            const windowHeight = window.innerHeight;
+            const documentHeight = spaceContainer.scrollHeight;
+            
+            // Show planets when scrolled to their section
+            planets.forEach((planet, index) => {
+                const planetSection = document.querySelectorAll('.planet-section')[index];
+                const sectionPosition = planetSection.offsetTop;
+                
+                if (scrollPosition > sectionPosition - windowHeight * 0.7) {
+                    planet.element.classList.add('visible');
+                    setTimeout(() => {
+                        planet.info.classList.add('visible');
+                    }, 500);
+                }
+            });
+            
+            // Show ending section when scrolled to bottom
+            if (scrollPosition + windowHeight > documentHeight - 100) {
+                endingSection.classList.add('visible');
+            }
+            
+            // Parallax effect for stars
+            starsContainer.style.transform = `translateY(${scrollPosition * 0.2}px)`;
+            
+            // Hide scroll indicator when scrolling down
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            if (scrollPosition > 100) {
+                scrollIndicator.style.opacity = '0';
+                scrollIndicator.style.pointerEvents = 'none';
+            } else {
+                scrollIndicator.style.opacity = '0.7';
+                scrollIndicator.style.pointerEvents = 'auto';
+            }
+        });
+        
+        // Trigger initial scroll event to check if planets are already visible
+        spaceContainer.dispatchEvent(new Event('scroll'));
+    </script>
+</body>
+</html>
